@@ -1,8 +1,7 @@
 ### R code from vignette source 'base_r.Rnw'
-### Encoding: UTF-8
 
 ###################################################
-### code chunk number 1: base_r.Rnw:22-23
+### code chunk number 1: base_r.Rnw:21-22
 ###################################################
 library(m61r)
 

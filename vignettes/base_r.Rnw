@@ -16,7 +16,6 @@
 \section{Introduction}
 \label{sec:intro}
 R-package m61r gathers functions similar to the ones present in dplyr and tidyr, but only written in base r, and without requiring any dependencies.\newline
-The purpose of this package is informative.\newline
 All the functions only work with data.frames.
 
 <<echo=FALSE, results=hide>>=

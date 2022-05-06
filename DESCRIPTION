@@ -1,6 +1,6 @@
 Package: m61r
 Type: Package
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: c(person("Jean-Marie","Lepioufle", , "pv71u98h1@gmail.com", c("aut","cre")))
 Title: Package About Data Manipulation in Pure Base R
 Description: Data manipulation in one package and in base R.
@@ -12,10 +12,9 @@ License: MIT + file LICENSE
 URL: https://github.com/pv71u98h1/m61r/
 BugReports: https://github.com/pv71u98h1/m61r/issues/
 Encoding: UTF-8
-LazyData: false
 NeedsCompilation: no
-Packaged: 2021-04-13 19:04:45 UTC; jean-marie
+Packaged: 2022-05-06 14:33:12 UTC; jean-marie
 Author: Jean-Marie Lepioufle [aut, cre]
 Maintainer: Jean-Marie Lepioufle <pv71u98h1@gmail.com>
 Repository: CRAN
-Date/Publication: 2021-04-15 08:20:05 UTC
+Date/Publication: 2022-05-06 15:50:02 UTC

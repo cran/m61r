@@ -1,5 +1,4 @@
 ### R code from vignette source 'm61r.Rnw'
-### Encoding: UTF-8
 
 ###################################################
 ### code chunk number 1: m61r.Rnw:25-26
