@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="pv71u98h1" />
+
+<meta name="date" content="2026-01-12" />
+
+<title>Temporal Data Manipulation with m61r</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Temporal Data Manipulation with m61r</h1>
+<h4 class="author">pv71u98h1</h4>
+<h4 class="date">2026-01-12</h4>
+
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Leveraging the memory efficiency of Base R, the m61r package provides tools for manipulating time series, such as expanding time intervals into discrete slots or performing window-based aggregations. # Temporal Function Reference</p>
+<p>In <code>m61r</code>, temporal operations rely on R primitives executed inside <code>mutate()</code> and <code>summarise()</code>.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Operation</th>
+<th>Base R Expression (<code>m61r</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cast to <code>Date</code></td>
+<td><code>~as.Date(col)</code></td>
+</tr>
+<tr class="even">
+<td>Cast to <code>Datetime</code></td>
+<td><code>~as.POSIXct(col)</code></td>
+</tr>
+<tr class="odd">
+<td><code>Datetime Sequence</code></td>
+<td><code>~seq(from, to, by=&quot;1 day&quot;)</code></td>
+</tr>
+<tr class="even">
+<td>Extract Hour</td>
+<td><code>~as.POSIXlt(col)$hour</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="formatting-and-component-extraction" class="section level1">
+<h1>Formatting and Component Extraction</h1>
+<p>The <code>mutate()</code> and <code>transmutate()</code> methods allow for the creation of derived columns using standard R <code>format()</code> codes.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>R Format Code</th>
+<th>Example Expression</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Year</td>
+<td><code>%Y</code></td>
+<td><code>year = ~format(dt, &quot;%Y&quot;)</code></td>
+</tr>
+<tr class="even">
+<td>Month (numeric)</td>
+<td><code>%m</code></td>
+<td><code>month = ~format(dt, &quot;%m&quot;)</code></td>
+</tr>
+<tr class="odd">
+<td>Day of the week</td>
+<td><code>%w</code> (0-6)</td>
+<td><code>weekday = ~format(dt, &quot;%w&quot;)</code></td>
+</tr>
+<tr class="even">
+<td>Hour (24h)</td>
+<td><code>%H</code></td>
+<td><code>hour = ~format(dt, &quot;%H&quot;)</code></td>
+</tr>
+<tr class="odd">
+<td>Grouping Key</td>
+<td><code>%Y-%m</code></td>
+<td><code>ym_key = ~format(dt, &quot;%Y-%m&quot;)</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="practical-examples" class="section level1">
+<h1>Practical Examples</h1>
+<div id="component-extraction" class="section level2">
+<h2>Component Extraction</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>raw_data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>  <span class="dt">timestamp =</span> <span class="kw">as.POSIXct</span>(<span class="kw">c</span>(<span class="st">&quot;2023-01-01 10:00:00&quot;</span>, <span class="st">&quot;2023-01-01 11:30:00&quot;</span>)),</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>  <span class="dt">value =</span> <span class="kw">c</span>(<span class="dv">10</span>, <span class="dv">20</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>data &lt;-<span class="st"> </span><span class="kw">m61r</span>(raw_data)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>data<span class="op">$</span><span class="kw">mutate</span>(</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>  <span class="dt">year  =</span> <span class="op">~</span><span class="kw">format</span>(timestamp, <span class="st">&quot;%Y&quot;</span>),</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>  <span class="dt">hour  =</span> <span class="op">~</span><span class="kw">as.POSIXlt</span>(timestamp)<span class="op">$</span>hour</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a>)</span></code></pre></div>
+</div>
+</div>
+<div id="interval-expansion" class="section level1">
+<h1>Interval Expansion</h1>
+<p>When having a “start” and an “end” time, a powerful way to analyse the data is to “explode” the intervals into individual rows.</p>
+<div id="creating-sequences" class="section level2">
+<h2>1. Creating Sequences</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>df_intervals &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  <span class="dt">id =</span> <span class="dv">1</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>  <span class="dt">start =</span> <span class="kw">as.POSIXct</span>(<span class="st">&quot;2025-01-01 08:00&quot;</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>  <span class="dt">end   =</span> <span class="kw">as.POSIXct</span>(<span class="st">&quot;2025-01-01 10:00&quot;</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>  <span class="dt">load  =</span> <span class="dv">100</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>p &lt;-<span class="st"> </span><span class="kw">m61r</span>(df_intervals)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>p<span class="op">$</span><span class="kw">mutate</span>(<span class="dt">slot =</span> <span class="op">~</span><span class="kw">Map</span>(<span class="cf">function</span>(s, e) <span class="kw">seq</span>(s, e, <span class="dt">by =</span> <span class="st">&quot;hour&quot;</span>), start, end))</span></code></pre></div>
+</div>
+<div id="structural-explosion" class="section level2">
+<h2>2. Structural Explosion</h2>
+<p>The <code>explode</code> method flattens the list-column, duplicating other column values for each element in the sequence.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>p<span class="op">$</span><span class="kw">explode</span>(<span class="st">&quot;slot&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>p<span class="op">$</span><span class="kw">head</span>()</span></code></pre></div>
+<pre><code>##   id               start                 end load                slot
+## 1  1 2025-01-01 08:00:00 2025-01-01 10:00:00  100 2025-01-01 08:00:00
+## 2  1 2025-01-01 08:00:00 2025-01-01 10:00:00  100 2025-01-01 09:00:00
+## 3  1 2025-01-01 08:00:00 2025-01-01 10:00:00  100 2025-01-01 10:00:00</code></pre>
+</div>
+</div>
+<div id="approximate-matching-with-as-of-joins" class="section level1">
+<h1>Approximate Matching with As-Of Joins</h1>
+<p>As-of joins are essential for synchronizing two time-series where timestamps do not match exactly.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>prices &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>  <span class="dt">ts =</span> <span class="kw">as.POSIXct</span>(<span class="st">&quot;2025-01-01 08:00&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">3600</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>  <span class="dt">val =</span> <span class="kw">c</span>(<span class="dv">10</span>, <span class="dv">12</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>df_sync &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">ts =</span> <span class="kw">as.POSIXct</span>(<span class="st">&quot;2025-01-01 09:30&quot;</span>), <span class="dt">event =</span> <span class="st">&quot;Trade&quot;</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>p_sync &lt;-<span class="st"> </span><span class="kw">m61r</span>(df_sync)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>p_sync<span class="op">$</span><span class="kw">join_asof</span>(prices, <span class="dt">by_x =</span> <span class="st">&quot;ts&quot;</span>, <span class="dt">by_y =</span> <span class="st">&quot;ts&quot;</span>, <span class="dt">direction =</span> <span class="st">&quot;backward&quot;</span>)</span></code></pre></div>
+</div>
+<div id="date-extraction-example" class="section level1">
+<h1>Date Extraction Example</h1>
+<p>The <code>m61r</code> object handles <code>Date</code>-class objects just as efficiently as <code>POSIXct</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>df_dates &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>  <span class="dt">id =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>  <span class="dt">entry =</span> <span class="kw">as.Date</span>(<span class="kw">c</span>(<span class="st">&quot;2020-01-01&quot;</span>, <span class="st">&quot;2021-01-01&quot;</span>)),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>  <span class="dt">exit  =</span> <span class="kw">as.Date</span>(<span class="kw">c</span>(<span class="st">&quot;2020-06-01&quot;</span>, <span class="st">&quot;2021-06-01&quot;</span>))</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>p_dates &lt;-<span class="st"> </span><span class="kw">m61r</span>(df_dates)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a>p_dates<span class="op">$</span><span class="kw">mutate</span>(<span class="dt">year =</span> <span class="op">~</span><span class="kw">as.POSIXlt</span>(entry)<span class="op">$</span>year <span class="op">+</span><span class="st"> </span><span class="dv">1900</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>p_dates<span class="op">$</span><span class="kw">head</span>()</span></code></pre></div>
+<pre><code>##   id      entry       exit year
+## 1  1 2020-01-01 2020-06-01 2020
+## 2  2 2021-01-01 2021-06-01 2021</code></pre>
+</div>
+<div id="time-based-aggregation" class="section level1">
+<h1>Time-Based Aggregation</h1>
+<p>A common task in time-series analysis is to bin data into specific time intervals (e.g., hourly or daily) and compute statistics. The following example demonstrates how to create a “bin” key and use it for grouping.</p>
+<div id="hourly-summary-example" class="section level2">
+<h2>Hourly Summary Example</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="co"># Create a dataset with random timestamps within a day</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a><span class="kw">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>ts_data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>  <span class="dt">time =</span> <span class="kw">as.POSIXct</span>(<span class="st">&quot;2025-01-01 00:00:00&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">runif</span>(<span class="dv">50</span>, <span class="dv">0</span>, <span class="dv">86400</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>  <span class="dt">consumption =</span> <span class="kw">rnorm</span>(<span class="dv">50</span>, <span class="dv">500</span>, <span class="dv">100</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a>p_agg &lt;-<span class="st"> </span><span class="kw">m61r</span>(ts_data)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true"></a>p_agg<span class="op">$</span><span class="kw">mutate</span>(<span class="dt">hour_bin =</span> <span class="op">~</span><span class="kw">format</span>(time, <span class="st">&quot;%Y-%m-%d %H:00&quot;</span>))</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true"></a>p_agg<span class="op">$</span><span class="kw">group_by</span>(<span class="op">~</span>hour_bin)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true"></a>p_agg<span class="op">$</span><span class="kw">summarise</span>(</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true"></a>  <span class="dt">n_obs =</span> <span class="op">~</span><span class="kw">length</span>(consumption),</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true"></a>  <span class="dt">avg_load =</span> <span class="op">~</span><span class="kw">mean</span>(consumption)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true"></a>)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true"></a>p_agg<span class="op">$</span><span class="kw">head</span>(<span class="dv">5</span>)</span></code></pre></div>
+<pre><code>##           hour_bin n_obs avg_load
+## 1 2025-01-01 00:00     1 521.5942
+## 2 2025-01-01 01:00     2 458.0534
+## 3 2025-01-01 02:00     1 461.9529
+## 4 2025-01-01 03:00     4 540.9203
+## 5 2025-01-01 05:00     4 401.9479</code></pre>
+</div>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>By staying true to Base R, <code>m61r</code> ensures that your temporal workflows remain portable, fast, and light.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
